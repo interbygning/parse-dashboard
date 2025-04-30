@@ -107,11 +107,12 @@ After starting the dashboard, you can visit http://localhost:4040 in your browse
 ## Compatibility
 
 ### Parse Server
-Parse Dashboard is compatible with the following Parse Server versions.
+Parse Dashboard is compatible with the following versions of Parse Server.
 
-| Parse Dashboard Version | Parse Server Version | Compatible |
-|-------------------------|----------------------|------------|
-| >=1.0                   | >= 2.1.4             | ✅ Yes      |
+| Parse Dashboard | Parse Server     |
+|-----------------|------------------|
+| >= 1.0.0        | >= 2.1.4 < 7.0.0 |
+| >= 8.0.0        | >= 7.0.0         |
 
 ### Node.js
 Parse Dashboard is continuously tested with the most recent releases of Node.js to ensure compatibility. We follow the [Node.js Long Term Support plan](https://github.com/nodejs/Release) and only test against versions that are officially supported and have not reached their end-of-life date.
@@ -126,25 +127,25 @@ Parse Dashboard is continuously tested with the most recent releases of Node.js 
 
 ### Options
 
-| Parameter                              | Type                | Optional | Default | Example              | Description                                                                                                                                 |
-|----------------------------------------|---------------------|----------|---------|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| `apps`                                 | Array&lt;Object&gt; | no       | -       | `[{ ... }, { ... }]` | The apps that are configured for the dashboard.                                                                                             |
-| `apps.appId`                           | String                        | yes          | -           | `"myAppId"`            | The Application ID for your Parse Server instance.                                                                                          |
-| `apps.masterKey`                       | String \| Function         | yes          | -           | `"exampleMasterKey"`, `() => "exampleMasterKey"` | The master key for full access to Parse Server. It can be provided directly as a String or as a Function returning a String.        |
-| `apps.masterKeyTtl`                    | Number                        | no           | -           | `3600`                  | Time-to-live (TTL) for the master key in seconds. This defines how long the master key is cached before the `masterKey` function is re-triggered.                |
-| `apps.serverURL`                       | String                        | yes          | -           | `"http://localhost:1337/parse"` | The URL where your Parse Server is running.                                                                                                 |
-| `apps.appName`                         | String                        | no           | -           | `"MyApp"`              | The display name of the app in the dashboard.                                                                                               |
-| `infoPanel`                            | Array&lt;Object&gt; | yes      | -       | `[{ ... }, { ... }]` | The [info panel](#info-panel) configuration.                                                                                                |
-| `infoPanel[*].title`                   | String              | no       | -       | `User Details`       | The panel title.                                                                                                                            |
-| `infoPanel[*].classes`                 | Array&lt;String&gt; | no       | -       | `["_User"]`          | The classes for which the info panel should be displayed.                                                                                   |
-| `infoPanel[*].cloudCodeFunction`       | String              | no       | -       | `getUserDetails`     | The Cloud Code Function which received the selected object in the data browser and returns the response to be displayed in the info panel.  |
-| `apps.scripts`                         | Array&lt;Object&gt; | yes      | `[]`    | `[{ ... }, { ... }]` | The scripts that can be executed for that app.                                                                                              |
-| `apps.scripts.title`                   | String              | no       | -       | `'Delete User'`      | The title that will be displayed in the data browser context menu and the script run confirmation dialog.                                   |
-| `apps.scripts.classes`                 | Array&lt;String&gt; | no       | -       | `['_User']`          | The classes of Parse Objects for which the scripts can be executed.                                                                         |
-| `apps.scripts.cloudCodeFunction`       | String              | no       | -       | `'deleteUser'`       | The name of the Parse Cloud Function to execute.                                                                                            |
-| `apps.scripts.showConfirmationDialog`  | Bool                | yes      | `false` | `true`               | Is `true` if a confirmation dialog should be displayed before the script is executed, `false` if the script should be executed immediately. |
-| `apps.scripts.confirmationDialogStyle` | String              | yes      | `info`  | `critical`           | The style of the confirmation dialog. Valid values: `info` (blue style), `critical` (red style).                                            |
-| `apps.cloudConfigHistoryLimit`         | Integer             | yes      | `100`   | `100`                | The number of historic values that should be saved in the Cloud Config change history. Valid values: `0`...`Number.MAX_SAFE_INTEGER`.       |
+| Parameter                              | Type                | Optional | Default | Example                                          | Description                                                                                                                                       |
+|----------------------------------------|---------------------|----------|---------|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| `apps`                                 | Array&lt;Object&gt; | no       | -       | `[{ ... }, { ... }]`                             | The apps that are configured for the dashboard.                                                                                                   |
+| `apps.appId`                           | String              | yes      | -       | `"myAppId"`                                      | The Application ID for your Parse Server instance.                                                                                                |
+| `apps.masterKey`                       | String \| Function  | yes      | -       | `"exampleMasterKey"`, `() => "exampleMasterKey"` | The master key for full access to Parse Server. It can be provided directly as a String or as a Function returning a String.                      |
+| `apps.masterKeyTtl`                    | Number              | no       | -       | `3600`                                           | Time-to-live (TTL) for the master key in seconds. This defines how long the master key is cached before the `masterKey` function is re-triggered. |
+| `apps.serverURL`                       | String              | yes      | -       | `"http://localhost:1337/parse"`                  | The URL where your Parse Server is running.                                                                                                       |
+| `apps.appName`                         | String              | no       | -       | `"MyApp"`                                        | The display name of the app in the dashboard.                                                                                                     |
+| `infoPanel`                            | Array&lt;Object&gt; | yes      | -       | `[{ ... }, { ... }]`                             | The [info panel](#info-panel) configuration.                                                                                                      |
+| `infoPanel[*].title`                   | String              | no       | -       | `User Details`                                   | The panel title.                                                                                                                                  |
+| `infoPanel[*].classes`                 | Array&lt;String&gt; | no       | -       | `["_User"]`                                      | The classes for which the info panel should be displayed.                                                                                         |
+| `infoPanel[*].cloudCodeFunction`       | String              | no       | -       | `getUserDetails`                                 | The Cloud Code Function which received the selected object in the data browser and returns the response to be displayed in the info panel.        |
+| `apps.scripts`                         | Array&lt;Object&gt; | yes      | `[]`    | `[{ ... }, { ... }]`                             | The scripts that can be executed for that app.                                                                                                    |
+| `apps.scripts.title`                   | String              | no       | -       | `'Delete User'`                                  | The title that will be displayed in the data browser context menu and the script run confirmation dialog.                                         |
+| `apps.scripts.classes`                 | Array&lt;String&gt; | no       | -       | `['_User']`                                      | The classes of Parse Objects for which the scripts can be executed.                                                                               |
+| `apps.scripts.cloudCodeFunction`       | String              | no       | -       | `'deleteUser'`                                   | The name of the Parse Cloud Function to execute.                                                                                                  |
+| `apps.scripts.showConfirmationDialog`  | Bool                | yes      | `false` | `true`                                           | Is `true` if a confirmation dialog should be displayed before the script is executed, `false` if the script should be executed immediately.       |
+| `apps.scripts.confirmationDialogStyle` | String              | yes      | `info`  | `critical`                                       | The style of the confirmation dialog. Valid values: `info` (blue style), `critical` (red style).                                                  |
+| `apps.cloudConfigHistoryLimit`         | Integer             | yes      | `100`   | `100`                                            | The number of historic values that should be saved in the Cloud Config change history. Valid values: `0`...`Number.MAX_SAFE_INTEGER`.             |
 
 ### File
 
