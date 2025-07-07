@@ -13,10 +13,10 @@
   border-left: 1px solid #3e87b2;
 
   a {
-    display: block;
+    display: flex;
+    align-items: center;
     padding-left: 12px;
     height: 20px;
-    line-height: 20px;
     color: #8fb9cf;
     font-size: 12px;
 
@@ -33,12 +33,11 @@
 
       &:first-of-type {
         @include DosisFont;
-        float: right;
-        width: 50px;
+        flex: 0 0 50px;
         text-align: right;
       }
       &:last-of-type {
-        margin-right: 50px;
+        flex: 1 1 auto;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
