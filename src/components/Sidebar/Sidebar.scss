@@ -330,9 +330,6 @@ a.subitem {
   color: white;
 
   > *:first-child {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
     position: absolute;
     letter-spacing: 2px;
     line-height: 12px;
