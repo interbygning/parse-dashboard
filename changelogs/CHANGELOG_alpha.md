@@ -1,3 +1,10 @@
+# [7.4.0-alpha.1](https://github.com/parse-community/parse-dashboard/compare/7.3.0...7.4.0-alpha.1) (2025-08-03)
+
+
+### Features
+
+* Add App Settings option to store dashboard settings on server ([#2958](https://github.com/parse-community/parse-dashboard/issues/2958)) ([666e078](https://github.com/parse-community/parse-dashboard/commit/666e07860ba1478aec3cde9db5c98a5772ea07fb))
+
 # [7.3.0-alpha.44](https://github.com/parse-community/parse-dashboard/compare/7.3.0-alpha.43...7.3.0-alpha.44) (2025-07-31)
 
 
