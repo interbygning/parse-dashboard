@@ -17,6 +17,7 @@ import CodeSnippet from 'components/CodeSnippet/CodeSnippet.react';
 import Notification from 'dashboard/Data/Browser/Notification.react';
 import * as ColumnPreferences from 'lib/ColumnPreferences';
 import * as ClassPreferences from 'lib/ClassPreferences';
+import ViewPreferencesManager from 'lib/ViewPreferencesManager';
 import bcrypt from 'bcryptjs';
 import * as OTPAuth from 'otpauth';
 import QRCode from 'qrcode';
@@ -26,6 +27,7 @@ export default class DashboardSettings extends DashboardView {
     super();
     this.section = 'App Settings';
     this.subsection = 'Dashboard Configuration';
+    this.viewPreferencesManager = null;
 
     this.state = {
       createUserInput: false,
@@ -39,6 +41,8 @@ export default class DashboardSettings extends DashboardView {
       message: null,
       passwordInput: '',
       passwordHidden: true,
+      migrationLoading: false,
+      storagePreference: 'local', // Will be updated in componentDidMount
       copyData: {
         data: '',
         show: false,
@@ -50,6 +54,81 @@ export default class DashboardSettings extends DashboardView {
         mfa: '',
       },
     };
+  }
+
+  componentDidMount() {
+    this.initializeViewPreferencesManager();
+  }
+
+  initializeViewPreferencesManager() {
+    if (this.context) {
+      this.viewPreferencesManager = new ViewPreferencesManager(this.context);
+      this.loadStoragePreference();
+    }
+  }
+
+  loadStoragePreference() {
+    if (this.viewPreferencesManager) {
+      const preference = this.viewPreferencesManager.getStoragePreference(this.context.applicationId);
+      this.setState({ storagePreference: preference });
+    }
+  }
+
+  handleStoragePreferenceChange(preference) {
+    if (this.viewPreferencesManager) {
+      this.viewPreferencesManager.setStoragePreference(this.context.applicationId, preference);
+      this.setState({ storagePreference: preference });
+
+      // Show a notification about the change
+      this.showNote(`Storage preference changed to ${preference === 'server' ? 'server' : 'browser'}`);
+    }
+  }
+
+  async migrateToServer() {
+    if (!this.viewPreferencesManager) {
+      this.showNote('ViewPreferencesManager not initialized');
+      return;
+    }
+
+    if (!this.viewPreferencesManager.isServerConfigEnabled()) {
+      this.showNote('Server configuration is not enabled for this app. Please add a "config" section to your app configuration.');
+      return;
+    }
+
+    this.setState({ migrationLoading: true });
+
+    try {
+      const result = await this.viewPreferencesManager.migrateToServer(this.context.applicationId);
+      if (result.success) {
+        if (result.viewCount > 0) {
+          this.showNote(`Successfully migrated ${result.viewCount} view(s) to server storage.`);
+        } else {
+          this.showNote('No views found to migrate.');
+        }
+      }
+    } catch (error) {
+      this.showNote(`Failed to migrate views: ${error.message}`);
+    } finally {
+      this.setState({ migrationLoading: false });
+    }
+  }
+
+  async deleteFromBrowser() {
+    if (!window.confirm('Are you sure you want to delete all dashboard settings from browser storage? This action cannot be undone.')) {
+      return;
+    }
+
+    if (!this.viewPreferencesManager) {
+      this.showNote('ViewPreferencesManager not initialized');
+      return;
+    }
+
+    const success = this.viewPreferencesManager.deleteFromBrowser(this.context.applicationId);
+    if (success) {
+      this.showNote('Successfully deleted views from browser storage.');
+    } else {
+      this.showNote('Failed to delete views from browser storage.');
+    }
   }
 
   getColumns() {
@@ -382,6 +461,61 @@ export default class DashboardSettings extends DashboardView {
             }
           />
         </Fieldset>
+        {this.viewPreferencesManager && this.viewPreferencesManager.isServerConfigEnabled() && (
+          <Fieldset legend="Settings Storage">
+            <Field
+              label={
+                <Label
+                  text="Storage Location"
+                  description="Choose where your dashboard settings are stored and loaded from. Server storage allows sharing settings across devices and users, while Browser storage is local to this device."
+                />
+              }
+              input={
+                <Toggle
+                  value={this.state.storagePreference}
+                  type={Toggle.Types.CUSTOM}
+                  optionLeft="local"
+                  optionRight="server"
+                  labelLeft="Browser"
+                  labelRight="Server"
+                  colored={true}
+                  onChange={(preference) => this.handleStoragePreferenceChange(preference)}
+                />
+              }
+            />
+            <Field
+              label={
+                <Label
+                  text="Migrate Settings to Server"
+                  description="Migrates your current browser-stored dashboard settings to the server. This does not change your storage preference - use the switch above to select the server as storage location after migration. ⚠️ This overwrites existing server settings."
+                />
+              }
+              input={
+                <FormButton
+                  color="blue"
+                  value={this.state.migrationLoading ? 'Migrating...' : 'Migrate to Server'}
+                  disabled={this.state.migrationLoading}
+                  onClick={() => this.migrateToServer()}
+                />
+              }
+            />
+            <Field
+              label={
+                <Label
+                  text="Delete Settings from Browser"
+                  description="Removes your dashboard settings from the browser's local storage. This action is irreversible. Make sure to migrate your settings to server and test them first."
+                />
+              }
+              input={
+                <FormButton
+                  color="red"
+                  value="Delete from Browser"
+                  onClick={() => this.deleteFromBrowser()}
+                />
+              }
+            />
+          </Fieldset>
+        )}
         {this.state.copyData.show && copyData}
         {this.state.createUserInput && createUserInput}
         {this.state.newUser.show && userData}
