@@ -1,3 +1,10 @@
+# [7.4.0-alpha.3](https://github.com/parse-community/parse-dashboard/compare/7.4.0-alpha.2...7.4.0-alpha.3) (2025-08-04)
+
+
+### Bug Fixes
+
+* Legacy script in JavaScript console not imported to modern console ([#2963](https://github.com/parse-community/parse-dashboard/issues/2963)) ([8c8d084](https://github.com/parse-community/parse-dashboard/commit/8c8d0849521eccd23e590c57ca91069bb32c5035))
+
 # [7.4.0-alpha.2](https://github.com/parse-community/parse-dashboard/compare/7.4.0-alpha.1...7.4.0-alpha.2) (2025-08-04)
 
 
