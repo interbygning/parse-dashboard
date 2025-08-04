@@ -45,12 +45,36 @@ export default class ScriptManager {
     // Always check for legacy single-script format and add it as a new unsaved tab
     const legacyScript = this._getScriptFromLegacySingleFormat();
     if (legacyScript && legacyScript.length > 0) {
-      // If we have existing scripts, add the legacy script to them
-      if (localScripts && localScripts.length > 0) {
-        localScripts = [...localScripts, ...legacyScript];
-      } else {
-        // If no existing scripts, use the legacy script
-        localScripts = legacyScript;
+      // Check if a script with the same code already exists to prevent duplicates
+      const legacyScriptData = legacyScript[0];
+      const existingScript = (localScripts || []).find(script =>
+        script.code === legacyScriptData.code && script.name === 'Legacy Script'
+      );
+
+      if (!existingScript) {
+        // Assign order property to automatically open the legacy script as a tab
+        // Use order 0 to make it the first tab
+        legacyScriptData.order = 0;
+
+        // Mark as saved to prevent unnecessary unsaved change warnings
+        legacyScriptData.saved = true;
+
+        // If we have existing scripts, add the legacy script to them
+        if (localScripts && localScripts.length > 0) {
+          // Increment order of existing scripts to make room for legacy script at position 0
+          localScripts.forEach(script => {
+            if (script.order !== undefined && script.order !== null) {
+              script.order += 1;
+            }
+          });
+          localScripts = [...localScripts, ...legacyScript];
+        } else {
+          // If no existing scripts, use the legacy script
+          localScripts = legacyScript;
+        }
+
+        // Auto-save the legacy script to storage
+        this._saveScriptsToLocal(appId, localScripts);
       }
     }
 
@@ -234,6 +258,14 @@ export default class ScriptManager {
   }
 
   /**
+   * Generates a unique ID for a new script/tab
+   * @returns {string} A UUID string
+   */
+  generateScriptId() {
+    return this._generateScriptId();
+  }
+
+  /**
    * Gets scripts from server storage
    * @private
    */
@@ -248,7 +280,7 @@ export default class ScriptManager {
           const scriptId = key.replace('console.js.script.', '');
 
           scripts.push({
-            id: parseInt(scriptId, 10),
+            id: scriptId, // Keep as string (UUID) instead of parsing as integer
             ...config
           });
         }
@@ -336,12 +368,12 @@ export default class ScriptManager {
       const legacyCode = localStorage.getItem('parse-dashboard-playground-code');
 
       if (legacyCode && legacyCode.trim()) {
-        // Create a script with the legacy code, marked as unsaved
+        // Create a script with the legacy code, marked as saved since we're auto-importing it
         const script = {
-          id: this._generateScriptId({ name: 'Legacy Script', code: legacyCode }),
+          id: this._generateScriptId(),
           name: 'Legacy Script',
           code: legacyCode,
-          saved: false, // Mark as unsaved so user can choose to save it
+          saved: true, // Mark as saved since this is a one-time migration
           lastModified: Date.now()
         };
 
@@ -377,19 +409,11 @@ export default class ScriptManager {
   }
 
   /**
-   * Generates a unique ID for a script
+   * Generates a unique ID for a script using UUID
    * @private
    */
-  _generateScriptId(script) {
-    // Use a hash of the script name and code as a fallback ID
-    const str = `${script.name || 'script'}-${script.code || ''}`;
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    return Math.abs(hash);
+  _generateScriptId() {
+    return crypto.randomUUID();
   }
 }
 

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useContext, useCallback, useMemo } from 'react';
 import ReactJson from 'react-json-view';
 import Parse from 'parse';
+import { useBeforeUnload } from 'react-router-dom';
 
 import CodeEditor from 'components/CodeEditor/CodeEditor.react';
 import Toolbar from 'components/Toolbar/Toolbar.react';
@@ -176,11 +177,11 @@ export default function Playground() {
   const containerRef = useRef(null);
 
   // Tab management state
+  const initialTabId = useMemo(() => crypto.randomUUID(), []);
   const [tabs, setTabs] = useState([
-    { id: 1, name: 'Tab 1', code: DEFAULT_CODE_EDITOR_VALUE }
+    { id: initialTabId, name: 'Tab 1', code: DEFAULT_CODE_EDITOR_VALUE }
   ]);
-  const [activeTabId, setActiveTabId] = useState(1);
-  const [nextTabId, setNextTabId] = useState(2);
+  const [activeTabId, setActiveTabId] = useState(initialTabId);
   const [renamingTabId, setRenamingTabId] = useState(null);
   const [renamingValue, setRenamingValue] = useState('');
   const [savedTabs, setSavedTabs] = useState([]); // All saved tabs including closed ones
@@ -235,8 +236,6 @@ export default function Playground() {
 
         if (tabsToOpen.length > 0) {
           setTabs(tabsToOpen);
-          const maxId = Math.max(...allScripts.map(tab => tab.id));
-          setNextTabId(maxId + 1);
 
           // Set active tab to the first one
           setActiveTabId(tabsToOpen[0].id);
@@ -249,8 +248,6 @@ export default function Playground() {
             const firstScript = { ...allScripts[0], order: 0 };
             setTabs([firstScript]);
             setActiveTabId(firstScript.id);
-            const maxId = Math.max(...allScripts.map(tab => tab.id));
-            setNextTabId(maxId + 1);
 
             // Save it as open
             await scriptManagerRef.current.openScript(context.applicationId, firstScript.id, 0);
@@ -258,17 +255,17 @@ export default function Playground() {
             setSavedTabs(allScripts.filter(script => script.saved !== false));
           } else {
             // Fallback to default tab if no scripts exist
-            setTabs([{ id: 1, name: 'Tab 1', code: DEFAULT_CODE_EDITOR_VALUE, order: 0 }]);
-            setActiveTabId(1);
-            setNextTabId(2);
+            const defaultTabId = crypto.randomUUID();
+            setTabs([{ id: defaultTabId, name: 'Tab 1', code: DEFAULT_CODE_EDITOR_VALUE, order: 0 }]);
+            setActiveTabId(defaultTabId);
           }
         }
       } catch (error) {
         console.warn('Failed to load scripts via ScriptManager:', error);
         // Fallback to default tab if loading fails
-        setTabs([{ id: 1, name: 'Tab 1', code: DEFAULT_CODE_EDITOR_VALUE, order: 0 }]);
-        setActiveTabId(1);
-        setNextTabId(2);
+        const defaultTabId = crypto.randomUUID();
+        setTabs([{ id: defaultTabId, name: 'Tab 1', code: DEFAULT_CODE_EDITOR_VALUE, order: 0 }]);
+        setActiveTabId(defaultTabId);
       }
 
       // Load other data from localStorage
@@ -317,18 +314,19 @@ export default function Playground() {
 
   // Tab management functions
   const createNewTab = useCallback(() => {
+    const newTabId = crypto.randomUUID();
+    const tabCount = tabs.length + 1;
     const newTab = {
-      id: nextTabId,
-      name: `Tab ${nextTabId}`,
+      id: newTabId,
+      name: `Tab ${tabCount}`,
       code: '', // Start with empty code instead of default value
       saved: false, // Mark as unsaved initially
       order: tabs.length // Assign order as the last position
     };
     const updatedTabs = [...tabs, newTab];
     setTabs(updatedTabs);
-    setActiveTabId(nextTabId);
-    setNextTabId(nextTabId + 1);
-  }, [tabs, nextTabId]);
+    setActiveTabId(newTabId);
+  }, [tabs]);
 
   const closeTab = useCallback(async (tabId) => {
     if (tabs.length <= 1) {
@@ -591,11 +589,6 @@ export default function Playground() {
     setTabs(updatedTabs);
     setActiveTabId(savedTab.id);
 
-    // Update nextTabId if necessary
-    if (savedTab.id >= nextTabId) {
-      setNextTabId(savedTab.id + 1);
-    }
-
     // Save the open state through ScriptManager
     if (scriptManagerRef.current && context?.applicationId) {
       try {
@@ -604,7 +597,151 @@ export default function Playground() {
         console.error('Failed to open script:', error);
       }
     }
-  }, [tabs, nextTabId, switchTab, context?.applicationId]);
+  }, [tabs, switchTab, context?.applicationId]);
+
+  // Navigation confirmation for unsaved changes
+  useBeforeUnload(
+    useCallback(
+      (event) => {
+        // Check for unsaved changes across all tabs
+        let hasChanges = false;
+
+        for (const tab of tabs) {
+          // Check if tab is marked as unsaved (like legacy scripts)
+          if (tab.saved === false) {
+            hasChanges = true;
+            break;
+          }
+
+          // Get current content for the tab
+          let currentContent = '';
+          if (tab.id === activeTabId && editorRef.current) {
+            // For active tab, get content from editor
+            currentContent = editorRef.current.value;
+          } else {
+            // For inactive tabs, use stored code
+            currentContent = tab.code;
+          }
+
+          // Find the saved version of this tab
+          const savedTab = savedTabs.find(saved => saved.id === tab.id);
+
+          if (!savedTab) {
+            // If tab was never saved, it has unsaved changes if it has any content
+            if (currentContent.trim() !== '') {
+              hasChanges = true;
+              break;
+            }
+          } else {
+            // Compare current content with saved content
+            if (currentContent !== savedTab.code) {
+              hasChanges = true;
+              break;
+            }
+          }
+        }
+
+        if (hasChanges) {
+          const message = 'You have unsaved changes in your playground tabs. Are you sure you want to leave?';
+          event.preventDefault();
+          event.returnValue = message;
+          return message;
+        }
+      },
+      [tabs, activeTabId, savedTabs]
+    )
+  );
+
+  // Handle navigation confirmation for internal route changes
+  useEffect(() => {
+    const checkForUnsavedChanges = () => {
+      // Check for unsaved changes across all tabs
+      for (const tab of tabs) {
+        // Check if tab is marked as unsaved (like legacy scripts)
+        if (tab.saved === false) {
+          return true;
+        }
+
+        // Get current content for the tab
+        let currentContent = '';
+        if (tab.id === activeTabId && editorRef.current) {
+          // For active tab, get content from editor
+          currentContent = editorRef.current.value;
+        } else {
+          // For inactive tabs, use stored code
+          currentContent = tab.code;
+        }
+
+        // Find the saved version of this tab
+        const savedTab = savedTabs.find(saved => saved.id === tab.id);
+
+        if (!savedTab) {
+          // If tab was never saved, it has unsaved changes if it has any content
+          if (currentContent.trim() !== '') {
+            return true;
+          }
+        } else {
+          // Compare current content with saved content
+          if (currentContent !== savedTab.code) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    const handleLinkClick = (event) => {
+      if (event.defaultPrevented) {
+        return;
+      }
+      if (event.button !== 0) {
+        return;
+      }
+      if (event.metaKey || event.altKey || event.ctrlKey || event.shiftKey) {
+        return;
+      }
+
+      const anchor = event.target.closest('a[href]');
+      if (!anchor || anchor.target === '_blank') {
+        return;
+      }
+
+      const href = anchor.getAttribute('href');
+      if (!href || href === '#') {
+        return;
+      }
+
+      // Check if it's an internal navigation (starts with / or #)
+      if (href.startsWith('/') || href.startsWith('#')) {
+        if (checkForUnsavedChanges()) {
+          const message = 'You have unsaved changes in your playground tabs. Are you sure you want to leave?';
+          if (!window.confirm(message)) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        }
+      }
+    };
+
+    const handlePopState = () => {
+      if (checkForUnsavedChanges()) {
+        const message = 'You have unsaved changes in your playground tabs. Are you sure you want to leave?';
+        if (!window.confirm(message)) {
+          window.history.go(1);
+        }
+      }
+    };
+
+    // Add event listeners
+    document.addEventListener('click', handleLinkClick, true);
+    window.addEventListener('popstate', handlePopState);
+
+    // Cleanup event listeners
+    return () => {
+      document.removeEventListener('click', handleLinkClick, true);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [tabs, activeTabId, savedTabs]);
 
   // Focus input when starting to rename
   useEffect(() => {
