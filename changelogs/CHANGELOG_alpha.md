@@ -1,3 +1,10 @@
+# [7.4.0-alpha.2](https://github.com/parse-community/parse-dashboard/compare/7.4.0-alpha.1...7.4.0-alpha.2) (2025-08-04)
+
+
+### Features
+
+* Modernize JavaScript console with tabs and server-side storage of scripts ([#2962](https://github.com/parse-community/parse-dashboard/issues/2962)) ([6e0c7f2](https://github.com/parse-community/parse-dashboard/commit/6e0c7f25b16fdfc0a34123359a8512c26252f269))
+
 # [7.4.0-alpha.1](https://github.com/parse-community/parse-dashboard/compare/7.3.0...7.4.0-alpha.1) (2025-08-03)
 
 
