@@ -1,3 +1,10 @@
+# [7.4.0-alpha.4](https://github.com/parse-community/parse-dashboard/compare/7.4.0-alpha.3...7.4.0-alpha.4) (2025-08-22)
+
+
+### Features
+
+* Add config parameter name to quick add dialogs in Config page ([#2970](https://github.com/parse-community/parse-dashboard/issues/2970)) ([31988f6](https://github.com/parse-community/parse-dashboard/commit/31988f68cda16856b0c6afb22e4f06321cbcef03))
+
 # [7.4.0-alpha.3](https://github.com/parse-community/parse-dashboard/compare/7.4.0-alpha.2...7.4.0-alpha.3) (2025-08-04)
 
 
