@@ -1,3 +1,10 @@
+# [7.4.0-alpha.5](https://github.com/parse-community/parse-dashboard/compare/7.4.0-alpha.4...7.4.0-alpha.5) (2025-08-22)
+
+
+### Features
+
+* Add info panel setting to auto-load first row on opening new browser tab ([#2972](https://github.com/parse-community/parse-dashboard/issues/2972)) ([020a25d](https://github.com/parse-community/parse-dashboard/commit/020a25dc302e45e947eb5c15a271bb9f0f1211f2))
+
 # [7.4.0-alpha.4](https://github.com/parse-community/parse-dashboard/compare/7.4.0-alpha.3...7.4.0-alpha.4) (2025-08-22)
 
 
