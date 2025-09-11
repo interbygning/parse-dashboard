@@ -1,3 +1,10 @@
+# [7.5.0-alpha.2](https://github.com/parse-community/parse-dashboard/compare/7.5.0-alpha.1...7.5.0-alpha.2) (2025-09-11)
+
+
+### Features
+
+* Add data browser filter condition `containedIn` ([#2979](https://github.com/parse-community/parse-dashboard/issues/2979)) ([c1dc5bb](https://github.com/parse-community/parse-dashboard/commit/c1dc5bb81823923596e2e1c5c8545ff5cded7856))
+
 # [7.5.0-alpha.1](https://github.com/parse-community/parse-dashboard/compare/7.4.0...7.5.0-alpha.1) (2025-09-09)
 
 
