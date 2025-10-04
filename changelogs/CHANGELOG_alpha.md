@@ -1,3 +1,10 @@
+# [7.6.0-alpha.3](https://github.com/parse-community/parse-dashboard/compare/7.6.0-alpha.2...7.6.0-alpha.3) (2025-10-04)
+
+
+### Bug Fixes
+
+* Filter text field in data browser partly looses focus when selecting in drop-down element by hitting enter key to apply filter ([#2993](https://github.com/parse-community/parse-dashboard/issues/2993)) ([f4c17c7](https://github.com/parse-community/parse-dashboard/commit/f4c17c7d9046d9296c7cd9cb99109cad8c8a0e5b))
+
 # [7.6.0-alpha.2](https://github.com/parse-community/parse-dashboard/compare/7.6.0-alpha.1...7.6.0-alpha.2) (2025-10-04)
 
 
