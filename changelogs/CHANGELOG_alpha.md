@@ -1,3 +1,10 @@
+# [7.6.0-alpha.1](https://github.com/parse-community/parse-dashboard/compare/7.5.0...7.6.0-alpha.1) (2025-10-04)
+
+
+### Features
+
+* Add `matches regex` filter to data browser replacing limited `string contains string` filter ([#2991](https://github.com/parse-community/parse-dashboard/issues/2991)) ([64a9f71](https://github.com/parse-community/parse-dashboard/commit/64a9f71bf89a818a7cf69573f652f554cac6a751))
+
 # [7.5.0-alpha.2](https://github.com/parse-community/parse-dashboard/compare/7.5.0-alpha.1...7.5.0-alpha.2) (2025-09-11)
 
 
