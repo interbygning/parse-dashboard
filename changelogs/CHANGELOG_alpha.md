@@ -1,3 +1,10 @@
+# [7.6.0-alpha.6](https://github.com/parse-community/parse-dashboard/compare/7.6.0-alpha.5...7.6.0-alpha.6) (2025-10-05)
+
+
+### Bug Fixes
+
+* Storing view on server creates view key with hashed view name instead of UUID ([#2995](https://github.com/parse-community/parse-dashboard/issues/2995)) ([7cb65f3](https://github.com/parse-community/parse-dashboard/commit/7cb65f360a2cd7f57782dad408c606671e271c7d))
+
 # [7.6.0-alpha.5](https://github.com/parse-community/parse-dashboard/compare/7.6.0-alpha.4...7.6.0-alpha.5) (2025-10-05)
 
 
