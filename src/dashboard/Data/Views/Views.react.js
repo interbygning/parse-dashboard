@@ -721,8 +721,13 @@ class Views extends TableView {
           classes={classNames}
           onCancel={() => this.setState({ showCreate: false })}
           onConfirm={view => {
+            // Generate UUID for new view
+            const newView = {
+              ...view,
+              id: this.viewPreferencesManager.generateViewId()
+            };
             this.setState(
-              state => ({ showCreate: false, views: [...state.views, view] }),
+              state => ({ showCreate: false, views: [...state.views, newView] }),
               async () => {
                 if (this.viewPreferencesManager) {
                   try {
