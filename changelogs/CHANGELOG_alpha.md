@@ -1,3 +1,10 @@
+# [7.6.0-alpha.8](https://github.com/parse-community/parse-dashboard/compare/7.6.0-alpha.7...7.6.0-alpha.8) (2025-10-05)
+
+
+### Performance Improvements
+
+* Storing, deleting, modifying view in server storage now only affects the specific view instead of updating all views ([#2998](https://github.com/parse-community/parse-dashboard/issues/2998)) ([48cea3c](https://github.com/parse-community/parse-dashboard/commit/48cea3c06001fe74be2990bc65036b5111f943b2))
+
 # [7.6.0-alpha.7](https://github.com/parse-community/parse-dashboard/compare/7.6.0-alpha.6...7.6.0-alpha.7) (2025-10-05)
 
 
